@@ -4,17 +4,14 @@ const User = require('./models/user')
 
 const app = express()
 
+// Runs for every incoming request
+app.use(express.json())
+
 app.post('/signup', async (req, res) => {
-    const userData = {
-        firstName: 'Irfan',
-        lastName: 'Abbas',
-        emailId: 'irfanabbas@gmail.com',
-        password: 'Irfan@123'
-    }
+    // Creating a new instance of User model
+    const user = new User(req.body)
 
     try {
-        // Creating a new instance of User model
-        const user = new User(userData)
         await user.save()
 
         res.send('User added successfully!')
