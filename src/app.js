@@ -20,6 +20,35 @@ app.post('/signup', async (req, res) => {
     }
 })
 
+app.get('/user', async (req, res) => {
+    try {
+        const user = await User.findOne({ emailId: req.body.emailId })
+        if(!user) {
+            res.status(404).send('User not found')
+        } else {
+            res.send(user)
+        }
+        // const users = await User.find({ emailId: req.body.emailId })
+
+        // if(users.length > 0) {
+        //     res.send(users)
+        // } else {
+        //     res.status(404).send('User not found')
+        // }
+    } catch(error) {
+        res.status(400).send('Something went wrong')
+    }
+})
+
+app.get('/feed', async (req, res) => {
+    try {
+        const users = await User.find({})
+        res.send(users)
+    } catch(error) {
+        res.status(400).send('Something went wrong')
+    }
+})
+
 connectDB()
     .then(() => {
         console.log('Database connection established...')
