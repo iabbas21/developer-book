@@ -1,27 +1,33 @@
 const express = require('express')
-const { adminAuth, userAuth } = require('./middlewares/auth')
+const connectDB = require('./config/database')
+const User = require('./models/user')
 
 const app = express()
 
-// admin auth middleware 
-app.use('/admin', adminAuth)
+app.post('/signup', async (req, res) => {
+    const userData = {
+        firstName: 'Irfan',
+        lastName: 'Abbas',
+        emailId: 'irfanabbas@gmail.com',
+        password: 'Irfan@123'
+    }
 
-app.get('/admin/getAllUsers', (req, res) => {
-    res.send('All users data')
+    try {
+        // Creating a new instance of User model
+        const user = new User(userData)
+        await user.save()
+
+        res.send('User added successfully!')
+    } catch(error) {
+        res.status(400).send('Error saving user: ' + error.message)
+    }
 })
 
-app.get('/admin/deleteUser', (req, res) => {
-    res.send('Deleted user')
-})
-
-app.post('/user/login', (req, res) => {
-    res.send('User logged in successfully!')
-})
-
-app.get('/user/data', userAuth, (req, res) => {
-    res.send('User data')
-})
-
-app.listen(3000, () => {
-    console.log(`Server is running successfully`)
-})
+connectDB()
+    .then(() => {
+        console.log('Database connection established...')
+        app.listen(3000, () => {
+            console.log(`Server is running successfully...`)
+        })
+    })
+    .catch(() => console.log('Database cannot be connected..'))
