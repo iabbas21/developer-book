@@ -3,11 +3,15 @@ const connectDB = require('./config/database')
 const User = require('./models/user')
 const { validateSignUpData } = require('./utils/validation')
 const bcrypt = require('bcrypt')
+const cookieParser = require('cookie-parser')
+const jwt = require('jsonwebtoken')
+const { userAuth } = require('./middlewares/auth')
 
 const app = express()
 
 // Runs for every incoming request
 app.use(express.json())
+app.use(cookieParser())
 
 app.post('/signup', async (req, res) => {
     try {
@@ -45,10 +49,26 @@ app.post('/login', async (req, res) => {
         }
         const isPasswordValid = await bcrypt.compare(password, user.password)
         if(isPasswordValid) {
+            // Create JWT token
+            const token = await jwt.sign({ _id: user._id }, 'DEV@Book$123', { expiresIn: '7d' })
+
+            // Add token to cookie
+            res.cookie('token', token, { expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), httpOnly: true })
+
             res.send('Login successful')
         } else {
             throw new Error('Invalid credentials')
         }
+    } catch(error) {
+        res.status(400).send('ERROR : ' + error.message)
+    }
+})
+
+app.get('/profile', userAuth, async (req, res) => {
+    try {
+        const user = req.user
+
+        res.send(user)
     } catch(error) {
         res.status(400).send('ERROR : ' + error.message)
     }
