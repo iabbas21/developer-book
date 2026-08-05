@@ -16,6 +16,12 @@ function validateSignUpData(data) {
     }
 }
 
+function validateEditProfileData(data) {
+    const ALLOWED_UPDATES = ['age', 'gender', 'photoUrl', 'about', 'skills']
+    return Object.keys(data).every(k => ALLOWED_UPDATES.includes(k))
+}
+
 module.exports = {
-    validateSignUpData
+    validateSignUpData,
+    validateEditProfileData
 }
